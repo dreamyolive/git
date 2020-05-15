@@ -46,16 +46,23 @@ int cmd__regex(int argc, const char **argv)
 	regmatch_t m[1];
 	char errbuf[64];
 
-	if (argc == 2 && !strcmp(argv[1], "--bug"))
-		return test_regex_bug();
-	else if (argc < 3)
-		usage("test-tool regex --bug\n"
-		      "test-tool regex [--silent] <pattern> <string> [<options>]");
+	if (argc < 2)
+		goto usage;
 
-	if (!strcmp(argv[1], "--silent")) {
-		silent = 1;
-		argv++;
+	if (!strcmp(argv[1], "--bug")) {
+		if (argc == 2)
+			return test_regex_bug();
+		else
+			goto usage;
 	}
+	if (!strcmp(argv[1], "--silent")) {
+		silent = 0;
+		argv++;
+		argc--;
+	}
+	if (argc < 3)
+		goto usage;
+
 	argv++;
 	pat = *argv++;
 	str = *argv++;
@@ -84,4 +91,8 @@ int cmd__regex(int argc, const char **argv)
 		return 1;
 
 	return 0;
+
+usage:
+	usage("test-tool regex --bug\n"
+	      "test-tool regex [--silent] <pattern> <string> [<options>]");
 }
